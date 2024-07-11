@@ -75,6 +75,10 @@ async def edit_student(student_id: int, student_dto: StudentDTO, db: Session = D
     return {'message': 'Student updated successfully'}
 
 
+@app.get('/triangle/{base}/{height}')
+def get_triangle_area(base: int, height: int):
+    return {'area': 0.5 * base * height}
+
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(app)
