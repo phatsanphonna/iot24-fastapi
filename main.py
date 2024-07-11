@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from model.student import Student
-from database import SessionLocal
+from database import SessionLocal, engine, Base
 from dto.student import StudentDTO
 
 load_dotenv()
