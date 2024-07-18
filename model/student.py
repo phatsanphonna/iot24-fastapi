@@ -5,7 +5,6 @@ from database import Base
 
 # from sqlalchemy.orm import relationship
 
-
 class Student(Base):
     __tablename__ = 'student'
 

@@ -1,21 +1,11 @@
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, FastAPI, HTTPException
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from routes.student import student_router
 
-from database import SessionLocal
-from dto.student import StudentDTO
-from model.student import Student
+from database import Base, engine
 
 load_dotenv()
-
-def get_db():
-    db = SessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
 
 app = FastAPI()
 router_v1 = APIRouter(prefix='/api/v1')
@@ -33,62 +23,6 @@ def get_root():
     return {'message': 'Hello World'}
 
 
-@router_v1.get("/students")
-async def get_students(db: Session = Depends(get_db)):
-    return db.query(Student).all()
-
-
-@router_v1.get("/students/{student_id}")
-async def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    
-    if not student:
-        raise HTTPException(status_code=404, detail="Student not found")
-    
-    return student
-
-
-@router_v1.post("/students")
-async def create_student(student_dto: StudentDTO, db: Session = Depends(get_db)):
-    student = Student()
-    student.firstname = student_dto.firstname
-    student.lastname = student_dto.lastname
-    student.student_id = student_dto.student_id
-    student.date_of_birth = student_dto.date_of_birth
-
-    db.add(student)
-    db.commit()
-    db.refresh(student)
-    return student
-
-
-@router_v1.delete("/students/{student_id}")
-async def delete_student_by_id(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.id == student_id).first()
-
-    if not student:
-        raise HTTPException(status_code=404, detail="Student not found")
-
-    db.delete(student)
-    db.commit()
-    return {'message': 'Student deleted successfully'}
-
-
-@router_v1.patch("/students/{student_id}")
-async def edit_student(student_id: int, student_dto: StudentDTO, db: Session = Depends(get_db)):
-    student_to_edit = db.query(Student).filter(Student.id == student_id).first()
-    
-    if not student_to_edit:
-        raise HTTPException(status_code=404, detail="Student not found")
-
-    student_to_edit.firstname = student_dto.firstname
-    student_to_edit.lastname = student_dto.lastname
-    student_to_edit.student_id = student_dto.student_id
-    student_to_edit.date_of_birth = student_dto.date_of_birth
-    db.commit()
-    db.refresh(student_to_edit)
-    return {'message': 'Student updated successfully'}
-
 
 @app.get('/triangle/{base}/{height}')
 def get_triangle_area(base: int, height: int):
@@ -96,5 +30,7 @@ def get_triangle_area(base: int, height: int):
 
 if __name__ == '__main__':
     import uvicorn
+    Base.metadata.create_all(bind=engine)
+    router_v1.include_router(student_router)
     app.include_router(router_v1)
     uvicorn.run(app)

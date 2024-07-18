@@ -5,3 +5,4 @@ class StudentDTO(BaseModel):
     lastname: str
     student_id: str
     date_of_birth: str
+
