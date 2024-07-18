@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.student import student_router
 from routes.book import book_router
