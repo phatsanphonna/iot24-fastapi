@@ -4,9 +4,8 @@ from sqlalchemy.orm import Session
 from database import get_db
 from dto.student import StudentDTO
 from model.student import Student
-from model.student import Student
 
-student_router = APIRouter(prefix='/students')
+student_router = APIRouter(prefix='/api/v1/students')
 
 @student_router.get("/")
 async def get_students(db: Session = Depends(get_db)):

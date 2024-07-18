@@ -5,7 +5,7 @@ from database import get_db
 from dto.book import BookDTO
 from model.book import Book
 
-book_router = APIRouter(prefix='/books')
+book_router = APIRouter(prefix='/api/v1/books')
 
 @book_router.get("/")
 async def get_books(db: Session = Depends(get_db)):
