@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import ARRAY, Boolean, Column, Integer, String
 from database import Base
 
 class Book(Base):
@@ -8,7 +8,7 @@ class Book(Base):
     title = Column(String, index=True)
     description = Column(String, index=True)
     short_description = Column(String, index=True)
-    category = Column(String, index=True)
+    category = Column(ARRAY(String), index=True)
     author = Column(String, index=True)
     year = Column(Integer, index=True)
     is_published = Column(Boolean, index=True)

@@ -8,4 +8,4 @@ class BookDTO(BaseModel):
     is_published: bool
     description: str
     short_description: str
-    category: str
+    category: list[str]
