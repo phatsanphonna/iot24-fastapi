@@ -30,14 +30,12 @@ app.add_middleware(
 def get_root():
     return {'message': 'Hello World'}
 
-book_router = APIRouter(prefix='/books')
-
-@book_router.get("/")
+@router_v1.get("/books")
 async def get_books(db: Session = Depends(get_db)):
     return db.query(Book).all()
 
 
-@book_router.get("/{book_id}")
+@router_v1.get("/books/{book_id}")
 async def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
     book = db.query(Book).filter(Book.id == book_id).first()
     
@@ -47,7 +45,7 @@ async def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
     return book
 
 
-@book_router.post("/")
+@router_v1.post("/books")
 async def create_book(book: BookDTO, db: Session = Depends(get_db)):
     db.add(book)
     db.commit()
@@ -55,7 +53,7 @@ async def create_book(book: BookDTO, db: Session = Depends(get_db)):
     return book
 
 
-@book_router.delete("/books/{book_id}")
+@router_v1.delete("/books/{book_id}")
 async def delete_book_by_id(book_id: int, db: Session = Depends(get_db)):
     book = db.query(Book).filter(Book.id == book_id).first()
 
@@ -67,14 +65,12 @@ async def delete_book_by_id(book_id: int, db: Session = Depends(get_db)):
     return {'success': True, 'message': 'Book deleted successfully'}
 
 
-student_router = APIRouter(prefix='/students')
-
-@student_router.get("/")
+@router_v1.get("/students")
 async def get_students(db: Session = Depends(get_db)):
     return db.query(Student).all()
 
 
-@student_router.get("/{student_id}")
+@router_v1.get("/students/{student_id}")
 async def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
     student = db.query(Student).filter(Student.id == student_id).first()
     
@@ -84,7 +80,7 @@ async def get_student_by_id(student_id: int, db: Session = Depends(get_db)):
     return student
 
 
-@student_router.post("/")
+@router_v1.post("/students")
 async def create_student(student_dto: StudentDTO, db: Session = Depends(get_db)):
     student = Student()
     student.firstname = student_dto.firstname
@@ -98,7 +94,7 @@ async def create_student(student_dto: StudentDTO, db: Session = Depends(get_db))
     return student
 
 
-@student_router.delete("/students/{student_id}")
+@router_v1.delete("/students/{student_id}")
 async def delete_student_by_id(student_id: int, db: Session = Depends(get_db)):
     student = db.query(Student).filter(Student.id == student_id).first()
 
@@ -110,7 +106,7 @@ async def delete_student_by_id(student_id: int, db: Session = Depends(get_db)):
     return {'success': True, 'message': 'Student deleted successfully'}
 
 
-@student_router.patch("/{student_id}")
+@router_v1.patch("/students/{student_id}")
 async def edit_student(student_id: int, student_dto: StudentDTO, db: Session = Depends(get_db)):
     student_to_edit = db.query(Student).filter(Student.id == student_id).first()
     
@@ -132,7 +128,5 @@ def get_triangle_area(base: int, height: int):
 if __name__ == '__main__':
     import uvicorn
     Base.metadata.create_all(bind=engine)
-    router_v1.include_router(book_router)
-    router_v1.include_router(student_router)
     app.include_router(router_v1)
     uvicorn.run(app)
