@@ -1,5 +1,4 @@
-from tokenize import String
-from sqlalchemy import Boolean, Column, Integer
+from sqlalchemy import Boolean, Column, Integer, String
 from database import Base
 
 class Book(Base):

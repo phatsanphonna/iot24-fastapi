@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.student import student_router
 from routes.book import book_router
 
+from database import Base, engine
+
 load_dotenv()
 
 app = FastAPI()
@@ -28,6 +30,7 @@ def get_triangle_area(base: int, height: int):
 
 if __name__ == '__main__':
     import uvicorn
+    Base.metadata.create_all(bind=engine)
     app.include_router(student_router)
     app.include_router(book_router)
     uvicorn.run(app)
