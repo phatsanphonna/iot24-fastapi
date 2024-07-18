@@ -53,6 +53,25 @@ async def create_book(book: BookDTO, db: Session = Depends(get_db)):
     return book
 
 
+@router_v1.patch("/books/{book_id}")
+async def edit_book(book_id: int, book: BookDTO, db: Session = Depends(get_db)):
+    book_to_edit = db.query(Book).filter(Book.id == book_id).first()
+    
+    if not book_to_edit:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    book_to_edit.title = book.title
+    book_to_edit.description = book.description
+    book_to_edit.short_description = book.short_description
+    book_to_edit.category = book.category
+    book_to_edit.author = book.author
+    book_to_edit.year = book.year
+    book_to_edit.is_published = book.is_published
+    db.commit()
+    db.refresh(book_to_edit)
+    return book_to_edit
+
+
 @router_v1.delete("/books/{book_id}")
 async def delete_book_by_id(book_id: int, db: Session = Depends(get_db)):
     book = db.query(Book).filter(Book.id == book_id).first()
