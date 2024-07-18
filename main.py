@@ -1,3 +1,4 @@
+import json
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,21 +33,29 @@ def get_root():
 
 @router_v1.get("/books")
 async def get_books(db: Session = Depends(get_db)):
-    return db.query(Book).all()
+    books = db.query(Book).all()
+    
+    for book in books:
+        book.category = json.loads(book.category)
+    
+    return books
 
 
 @router_v1.get("/books/{book_id}")
 async def get_book_by_id(book_id: int, db: Session = Depends(get_db)):
     book = db.query(Book).filter(Book.id == book_id).first()
-    
+
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")
-    
+
+    book.category = json.loads(book.category)
+
     return book
 
 
 @router_v1.post("/books")
 async def create_book(book: BookDTO, db: Session = Depends(get_db)):
+    book.category = json.dumps(book.category)
     db.add(book)
     db.commit()
     db.refresh(book)
@@ -63,7 +72,7 @@ async def edit_book(book_id: int, book: BookDTO, db: Session = Depends(get_db)):
     book_to_edit.title = book.title
     book_to_edit.description = book.description
     book_to_edit.short_description = book.short_description
-    book_to_edit.category = book.category
+    book_to_edit.category = json.dumps(book.category)
     book_to_edit.author = book.author
     book_to_edit.year = book.year
     book_to_edit.is_published = book.is_published
