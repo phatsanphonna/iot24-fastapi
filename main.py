@@ -121,12 +121,15 @@ async def edit_student(student_id: int, student_dto: StudentDTO, db: Session = D
     db.refresh(student_to_edit)
     return {'success': True, 'message': 'Student updated successfully'}
 
+
 @app.get('/triangle/{base}/{height}')
 def get_triangle_area(base: int, height: int):
     return {'area': 0.5 * base * height}
 
+
+app.include_router(router_v1)
+
 if __name__ == '__main__':
     import uvicorn
     Base.metadata.create_all(bind=engine)
-    app.include_router(router_v1)
     uvicorn.run(app)
