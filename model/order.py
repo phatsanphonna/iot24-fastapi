@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -12,4 +12,4 @@ class Order(Base):
     menu_id = Column(ForeignKey('menu.id'), index=True)
     menu = relationship('Menu')
     quantity = Column(Integer, index=True)
-    is_paid = Column(Boolean, index=True)
+    remark = Column(String, index=True)

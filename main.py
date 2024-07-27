@@ -174,7 +174,7 @@ def create_order(orders: list[OrderDTO], db: Session = Depends(get_db)):
         new_order = Order()
         new_order.menu_id = order_payload.menu_id
         new_order.quantity = order_payload.quantity
-        new_order.is_paid = False
+        new_order.remark = order_payload.remark
         db.add(new_order)
     db.commit()
     return orders
