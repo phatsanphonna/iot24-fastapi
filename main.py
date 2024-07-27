@@ -4,15 +4,16 @@ from fastapi import APIRouter, FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from database import get_db
+from database import get_db, engine, Base
 
 from dto.book import BookDTO
+from dto.order import OrderDTO
 from dto.student import StudentDTO
 
 from model.book import Book
+from model.menu import Menu
+from model.order import Order
 from model.student import Student
-
-from database import Base, engine
 
 load_dotenv()
 
@@ -150,12 +151,42 @@ async def edit_student(student_id: int, student_dto: StudentDTO, db: Session = D
     return {'success': True, 'message': 'Student updated successfully'}
 
 
+@router_v1.get('/menus')
+def get_menus(db: Session = Depends(get_db)):
+    menus = db.query(Menu).all()
+    return menus
+
+
+@router_v1.get('/orders')
+def get_orders(db: Session = Depends(get_db)):
+    orders = db.query(Order).all()
+    
+    for order in orders:
+        order.menu = db.query(Menu).filter(Menu.id == order.menu_id).first()
+
+    return orders
+
+
+@router_v1.post('/orders')
+def create_order(orders: list[OrderDTO], db: Session = Depends(get_db)):
+    for order_payload in orders:
+        print(order_payload)
+        new_order = Order()
+        new_order.menu_id = order_payload.menu_id
+        new_order.quantity = order_payload.quantity
+        new_order.is_paid = False
+        db.add(new_order)
+    db.commit()
+    return orders
+
+
 @app.get('/triangle/{base}/{height}')
 def get_triangle_area(base: int, height: int):
     return {'area': 0.5 * base * height}
 
 
 app.include_router(router_v1)
+Base.metadata.create_all(bind=engine, tables=Base.metadata.tables.values())
 
 if __name__ == '__main__':
     import uvicorn
