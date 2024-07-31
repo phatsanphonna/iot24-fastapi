@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from database import get_db, engine, Base
 
 from dto.book import BookDTO
+from dto.menu import MenuDTO
 from dto.order import OrderDTO
 from dto.student import StudentDTO
 
@@ -157,6 +158,19 @@ def get_menus(db: Session = Depends(get_db)):
     return menus
 
 
+@router_v1.post('/menus')
+def create_menu(menu: MenuDTO, db: Session = Depends(get_db)):
+    add_menu = Menu()
+    add_menu.name = menu.name
+    add_menu.price = menu.price
+
+    db.add(add_menu)
+    db.commit()
+    db.refresh(add_menu)
+
+    return add_menu
+
+
 @router_v1.get('/orders')
 def get_orders(db: Session = Depends(get_db)):
     orders = db.query(Order).all()
@@ -178,6 +192,23 @@ def create_order(orders: list[OrderDTO], db: Session = Depends(get_db)):
         db.add(new_order)
     db.commit()
     return orders
+
+
+@router_v1.delete('/menus/{menu_id}')
+def delete_menu(menu_id: int, db: Session = Depends(get_db)):
+    orders = db.query(Order).filter(Order.menu_id == menu_id).all()
+    
+    for order in orders:
+        db.delete(order)
+
+    menu = db.query(Menu).filter(Menu.id == menu_id).first()
+
+    if not menu:
+        raise HTTPException(status_code=404, detail="Menu not found")
+    db.delete(menu)
+    db.commit()
+
+    return {'success': True, 'message': 'Menu deleted successfully'}
 
 
 @app.get('/triangle/{base}/{height}')
